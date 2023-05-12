@@ -42,7 +42,7 @@ export default function Chats() {
         setChats(prev => {
           if (prev) {
             const result = data.filter(item => item[1].date !== null)
-            if (result.length !== prev.length) {
+            if (result.length < prev.length) {
               return prev
             } else {
               return data.sort((a,b)=>b[1].date - a[1].date)

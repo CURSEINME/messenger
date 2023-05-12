@@ -55,7 +55,6 @@ export async function searchUser(name) {
   return usersSnapShot
 }
 export async function createChat(combainedId, user) {
-  console.log(user)
   const chatRef = doc(db, "chats", combainedId)
   const currentUserChatRef = doc(db, "userChats", auth.currentUser.uid)
   const userChatRef = doc(db, "userChats", user.uid)
