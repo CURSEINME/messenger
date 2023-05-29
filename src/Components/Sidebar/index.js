@@ -4,7 +4,7 @@ import Search from "../Search";
 
 export default function Sidebar() {
   return (
-    <div className="w-80 min-h-full bg-gray-500 rounded-bl-2xl">
+    <div className="w-80 min-h-full bg-gray-900 bg-opacity-90 rounded-l-2xl">
       <Navbar/>
       <Search/>
       <Chats/>

@@ -1,69 +1,100 @@
-import { Form, redirect, useActionData, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react"
 import { signUp } from "../../api";
-
-export async function action({request}) {
-  const formData = await request.formData()
-
-  const name = formData.get("name")
-  const email = formData.get("email")
-  const password = formData.get("password")
-  const photoURL = formData.get("imageUrl")
-
-  try {
-    if (name.length > 10) {
-      throw new Error("Name too long, max 10 symbols")
-    }
-    
-    const url = new URL(photoURL)
-
-    if (photoURL.length >= 200) {
-      throw new Error("ImageUrl too long")
-    }
-
-    await signUp({name, email, password, photoURL})
-
-    return redirect("/")
-  } catch(err) {
-    return err.message
-  }
-}
 
 export default function SignUp() {
 
-  const errorMessage = useActionData()
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    img: null
+  })
+  console.log(formData)
+  const [error, setError] = useState()
+
+  console.log(error)
+
+  const navigate = useNavigate()
+
+
+  function handleChange(event) {
+    const { name, value, files } = event.target
+
+    if (files) {
+      setFormData(prev => {
+        return {
+          ...prev,
+          [name]: files[0] 
+        }
+      })
+    } else {
+      setFormData(prev => {
+        return {
+          ...prev,
+          [name]: value
+        }
+      })
+    }
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault()
+
+    const { name, email, password, img } = formData
+
+    try {
+      if (name.length <= 20) {
+        await signUp(name, email, password, img)
+      } else {
+        throw new Error("Name too long!!!")
+      }
+      navigate("/")
+    } catch(err) {
+      setError(err.message)
+    }
+
+  }
 
   return (
-    <div className="p-8 max-h-w-5/6 bg-indigo-400 absolute top-1/2 left-1/2 -ml-56 -mt-56 rounded-2xl">
+    <div className="p-8 max-h-w-5/6 bg-gray-700 absolute top-1/2 left-1/2 -ml-56 -mt-56 rounded-2xl">
       <h1 className= "text-center text-3xl font-semibold mb-10 text-white">Create your account</h1>
-      {errorMessage && <h2 className="text-red-500 text-xl font-bold text-center mb-8">{errorMessage}</h2>}
-      <Form className="flex-col flex gap-5" method="post">
+      {error && <h2 className="text-red-500 text-xl font-bold text-center mb-8">{error}</h2>}
+      <form onSubmit={handleSubmit} className="flex-col flex gap-5" method="post">
         <input
-          className="w-96 px-5 py-1 rounded-2xl"
+          className="w-96 px-5 py-1 rounded-2xl bg-gray-800 text-white focus:ring-2 focus:ring-gray-900 focus:outline-none hover:bg-opacity-75"
+          onChange={handleChange}
+          value={formData.name}
           name="name"
           type="text"
           placeholder="Nickname"
         />
         <input
-          className="w-96 px-5 py-1 rounded-2xl"
+          className="w-96 px-5 py-1 rounded-2xl bg-gray-800 text-white focus:ring-2 focus:ring-gray-900 focus:outline-none hover:bg-opacity-75"
+          onChange={handleChange}
+          value={formData.email}
           name="email"
           type="email"
           placeholder="Email"
         />
         <input
-          className="px-5 py-1 rounded-2xl"
+          className="px-5 py-1 rounded-2xl bg-gray-800 text-white focus:ring-2 focus:ring-gray-900 focus:outline-none hover:bg-opacity-75"
+          onChange={handleChange}
+          value={formData.password}
           name="password"
           type="password"
           placeholder="Password"
           autoComplete="true"
         />
         <input
-          className="px-5 py-1 rounded-2xl"
-          name="imageUrl"
-          type="text"
+          className="file:border-0 file:bg-gray-800 file:text-white file:px-4 file:py-1 file:rounded-2xl file:mr-5 file: text-white hover:file:bg-opacity-75"
+          onChange={handleChange}
+          name="img"
+          type="file"
           placeholder="ImageUrl"
         />
-        <button className="mt-5 mb-5 text-lg bg-indigo-700 text-white self-center px-4 py-2 rounded-2xl">Sign Up</button>
-      </Form>
+        <button type="submit" className="mt-5 mb-5 text-lg bg-gray-900 text-white self-center px-4 py-2 rounded-2xl hover:bg-opacity-75">Sign Up</button>
+      </form>
       <div className="text-white text-sm">
         <span>Already have account? </span>
         <Link to="/signIn">Sign In</Link>

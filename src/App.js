@@ -1,45 +1,61 @@
 import {
   Route,
-  createRoutesFromElements,
   RouterProvider,
   createHashRouter,
+  createRoutesFromElements
 } from "react-router-dom";
 import "./index.css"
 
-import SignIn, { action as signInAction } from "./Pages/SignIn";
-import SignUp, { action as signUpAction} from "./Pages/SignUp";
-import Home, { action as chatAction} from "./Pages/Home";
-import { requareAuth } from "./utils";
+import SignIn from "./Pages/SignIn";
+import SignUp from "./Pages/SignUp"; 
+import Home from "./Pages/Home";
+import ProtectedRoute from "./Components/ProtectedRoute";
+import { useDispatch } from "react-redux";
+import { useEffect } from "react"
+import { auth } from "./firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 
 const router = createHashRouter(createRoutesFromElements(
   <Route path="/">
     <Route
       index
-      element={<Home/>}
-      loader={() => requareAuth()}
-      action={chatAction}
+      element={
+        <ProtectedRoute>
+          <Home/>
+        </ProtectedRoute>
+      }
     />
     <Route
       path="signIn"
       element={<SignIn/>}
-      // loader={() => requareAuth()}
-      action={signInAction}
-      />
+    />
     <Route 
       path="signUp"
       element={<SignUp/>}
-      // loader={() => requareAuth()} 
-      action={signUpAction} 
     />
   </Route>
 ))
 
 function App() {
+
+  const dispatch = useDispatch()
+
+
+  useEffect(() => {
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        localStorage.setItem("loggedIn", true)
+
+        dispatch({type:"CHANGE_ CURRENTUSER", payload: user})
+      } else {
+        localStorage.removeItem("loggedIn")
+      }
+    })
+  }, [])
+
   return (
-    <div className="page">
-      <RouterProvider router={router} />
-    </div>
+    <RouterProvider router={router} />
   );
 }
 

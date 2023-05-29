@@ -1,4 +1,4 @@
-import { auth, db } from "./firebase";
+import { auth, db, storage } from "./firebase";
 import { 
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -18,21 +18,28 @@ import {
   arrayUnion,
   Timestamp,
 } from "firebase/firestore"
+import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 
-export async function signIn({email, password}) {
+export async function signIn(email, password) {
   await signInWithEmailAndPassword(auth, email, password)
 }
-export async function signUp({name, email, password, photoURL}) {
+export async function signUp(name, email, password, img) {
+
   await createUserWithEmailAndPassword(
     auth, email, password
   )
+  const storageRef = ref(storage, img.name)
+  const usersRef = doc(db, "users", auth.currentUser.uid)
+  const userChatsRef = doc(db, "userChats", auth.currentUser.uid)
+
+  await uploadBytes(storageRef, img)
+
+  const photoURL = await getDownloadURL(storageRef)
+
   await updateProfile(auth.currentUser, {
     displayName: name,
     photoURL
   })
-
-  const usersRef = doc(db, "users", auth.currentUser.uid)
-  const userChatsRef = doc(db, "userChats", auth.currentUser.uid)
 
   await setDoc(usersRef, {
     displayName: name,
@@ -83,18 +90,35 @@ export async function createChat(combainedId, user) {
   })
 
 }
-export async function sendMessage(chatId, message, userId) {
+export async function sendMessage(chatId, message, userId, img) {
   const chatRef = doc(db, "chats", chatId)
   const currentUserChatRef = doc(db, "userChats", auth.currentUser.uid)
   const userChatRef = doc(db, "userChats", userId)
+  
+  if (img) {
+    const storageRef = ref(storage, img.name)
 
-  await updateDoc(chatRef, {
-    messages: arrayUnion({
-      message,
-      senderId: auth.currentUser.uid,
-      data: Timestamp.now()
+    await uploadBytes(storageRef, img)
+
+    const photoURL = await getDownloadURL(storageRef)
+
+    await updateDoc(chatRef, {
+      messages: arrayUnion({
+        photoURL,
+        message,
+        senderId: auth.currentUser.uid,
+        data: Timestamp.now()
+      })
     })
-  })
+  } else {
+    await updateDoc(chatRef, {
+      messages: arrayUnion({
+        message,
+        senderId: auth.currentUser.uid,
+        data: Timestamp.now()
+      })
+    })
+  }
 
   const time = serverTimestamp()
   

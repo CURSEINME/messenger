@@ -1,10 +1,9 @@
-import { useContext } from "react";
 import { userSignOut } from "../../api";
-import { AuthContext } from "../../Context/AuthContext.";
+import { useSelector } from "react-redux";
 
 export default function Navbar() {
 
-  const { currentUser } = useContext(AuthContext)
+  const currentUser = useSelector(state => state.auth.currentUser)
 
   async function signOut() {
     await userSignOut()
@@ -12,12 +11,12 @@ export default function Navbar() {
   }
 
   return (
-    <div className="bg-indigo-500 px-6 h-20 flex items-center justify-between rounded-tl-2xl">
+    <div className="bg-gray-900 px-6 h-20 flex items-center justify-between rounded-tl-2xl">
       {currentUser && <div className="flex items-center">
         <img className="object-cover w-14 h-14 rounded-full" src={currentUser.photoURL} />
         <span className="text-white text-lg font-bold ml-4" >{currentUser.displayName}</span>
       </div>}
-      <button onClick={signOut} className="text-sm font-bold px-3 py-2 bg-indigo-600 rounded-2xl text-white">SignOut</button>
+      <button onClick={signOut} className="text-sm font-bold px-3 py-2 bg-gray-800 rounded-2xl text-white">SignOut</button>
     </div>
   )
 }

@@ -1,22 +1,22 @@
 import { doc, onSnapshot } from "firebase/firestore";
-import { useEffect, useContext, useState } from "react";
+import { useEffect, useState } from "react";
 import { db } from "../../firebase";
-import { AuthContext } from "../../Context/AuthContext.";
-import { ChatContext } from "../../Context/ChatContext";
+import { useDispatch, useSelector } from "react-redux"
 
 export default function Chats() {
 
   const [chats, setChats] = useState()
 
-  const { data, dispatch } =  useContext(ChatContext)
-  const { currentUser } = useContext(AuthContext)
+  const dispatch = useDispatch()
+  const data = useSelector(state => state.chat)
+  const currentUser = useSelector(state => state.auth.currentUser)
 
   const chatsEl = chats?.map(chat => {
     return (
       <div key={chat[0]}>
         {chat[1].lastMessage && <div className={data.chatId == chat[0]
-            ? "bg-gray-700 rounded-3xl flex items-center gap-4 p-4" 
-            : "flex items-center gap-4 p-4 hover:bg-gray-600 hover:bg-opacity-50 hover: rounded-3xl"
+            ? "bg-gray-900 rounded-3xl flex items-center gap-4 p-4" 
+            : "flex items-center gap-4 p-4 hover:bg-gray-900 hover:bg-opacity-50 hover: rounded-3xl"
           }
           onClick={() => handleSelect(chat[1].userInfo)}
         >
@@ -63,7 +63,7 @@ export default function Chats() {
   },[currentUser?.uid])
 
   return (
-    <div className=" bg-gray-500 rounded-bl-2xl p-2" >
+    <div className="rounded-bl-2xl p-2" >
      {chatsEl}
     </div>
   )
