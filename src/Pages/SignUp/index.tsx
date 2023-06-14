@@ -1,22 +1,21 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react"
 import { signUp } from "../../api";
+import { SignUpForm } from "../../types";
 
 export default function SignUp() {
 
-  const [formData, setFormData] = useState({
+  const defaultState = {
     name: "",
     email: "",
     password: "",
     img: null
-  })
-  console.log(formData)
-  const [error, setError] = useState()
+  }
 
-  console.log(error)
+  const [formData, setFormData] = useState<SignUpForm>(defaultState)
+  const [error, setError] = useState<string>()
 
   const navigate = useNavigate()
-
 
   function handleChange(event) {
     const { name, value, files } = event.target
@@ -44,16 +43,17 @@ export default function SignUp() {
     const { name, email, password, img } = formData
 
     try {
-      if (name.length <= 20) {
-        await signUp(name, email, password, img)
+      if (name.length > 20) {
+        throw new Error("Name too long")
+      } else if (!img) {
+        throw new Error("Please select image")
       } else {
-        throw new Error("Name too long!!!")
+        await signUp({name, email, password, img})
       }
       navigate("/")
-    } catch(err) {
+    } catch(err: any) {
       setError(err.message)
     }
-
   }
 
   return (

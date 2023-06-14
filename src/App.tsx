@@ -45,7 +45,7 @@ function App() {
   useEffect(() => {
     onAuthStateChanged(auth, user => {
       if (user) {
-        localStorage.setItem("loggedIn", true)
+        localStorage.setItem("loggedIn", "true")
 
         dispatch({type:"CHANGE_ CURRENTUSER", payload: user})
       } else {

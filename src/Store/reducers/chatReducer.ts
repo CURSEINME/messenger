@@ -1,12 +1,13 @@
-import { auth } from "../firebase"
+import { auth } from "../../firebase"
+import { ChatAction, ChatState } from "../../types"
 
-const defaulfState = {
-  chatId: "",
-  user:{}
+const initialState: ChatState = {
+  chatId: null,
+  user: null
 }
 
 
-export function chatReducer(state = defaulfState, action) {
+export function chatReducer(state = initialState, action: ChatAction) {
     const currentUser = auth.currentUser
 
     if (currentUser) {

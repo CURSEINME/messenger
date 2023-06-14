@@ -1,31 +1,37 @@
 import { useEffect, useState } from "react"
 import { sendMessage } from "../../api";
 import { useSelector } from "react-redux";
+import { RootState } from "../../Store/store";
+import { FormData } from "../../types";
 
 export default function Input() {
 
-  const [formData, setFormData] = useState({
+  const defaultFromData = {
     message: "",
-    img: ""
-  })
+    img: null
+  }
 
-  const [preview, setPreview] = useState()
+  const [formData, setFormData] = useState<FormData>(defaultFromData)
+  const [preview, setPreview] = useState<string>("")
+  const [randomString, setRandomString] = useState("")
 
-  const [randomString, setRandomString] = useState()
-
-  const data = useSelector(state => state.chat)
+  const data = useSelector((state: RootState) => state.chat)
 
   function handleChange(event) {
 
     const { name, value, files } = event.target
 
     if (files) {
-      setFormData(prev => {
-        return {
-          ...prev,
-          [name]: files[0]
-        }
-      })
+      if (files.size > 8000000) {
+        alert("Image picture more than 8mb")
+      } else {
+        setFormData(prev => {
+          return {
+            ...prev,
+            [name]: files[0]
+          }
+        })
+      }
     } else {
       setFormData(prev => {
         return {
@@ -51,8 +57,11 @@ export default function Input() {
     })
 
     try {
-      if (data.chatId && message) {
-        await sendMessage(data.chatId, message, data.user.uid, img)
+      const chatId = data.chatId
+      const userId = data.user?.uid
+
+      if (chatId && message && userId) {
+        await sendMessage({chatId, message, userId, img})
         resetInput()
 
       } else return null
@@ -74,15 +83,15 @@ export default function Input() {
       reader.readAsDataURL(formData.img)
 
       reader.onloadend = () => {
-        setPreview(reader.result)
+        setPreview(reader.result as string)
       }
     } else {
-      setPreview(null)
+      setPreview("")
     }
   },[formData.img])
 
   return (
-    <div className="">
+    <div>
       {preview && <img className="w-32 rounded-2xl m-5" src={preview} />}
       <form className="flex" onSubmit={handleSubmit} method="post">
         <input 

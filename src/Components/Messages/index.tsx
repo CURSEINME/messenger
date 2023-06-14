@@ -5,15 +5,16 @@ import Message from "../Message";
 import Input from "../Input";
 import { useSelector } from "react-redux";
 import ScrollToBottom from "react-scroll-to-bottom";
+import { RootState } from "../../Store/store";
 
 export default function Messages() {
 
-  const [ messages, setMessages ] = useState([])
+  const [ messages, setMessages ] = useState<any[]>([])
 
-  const data = useSelector(state => state.chat)
+  const data = useSelector((state: RootState) => state.chat)
 
   const allMessages = messages?.map((message, index) => {
-    return <Message key={index} message={message} />
+    return <Message key={index} messageData={message} />
   })
 
   useEffect(() => {
@@ -36,7 +37,7 @@ export default function Messages() {
         ">
         {allMessages}
       </ScrollToBottom>
-      <Input messages={messages} />
+      <Input/>
     </>
   )
 }

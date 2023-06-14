@@ -7,11 +7,13 @@ import { useState } from "react"
 
 export default function SignIn() {
 
-  const [formData, setFormData] = useState({
+  const defaultState = {
     email: "",
     password: ""
-  })
-  const [error, setError] = useState()
+  }
+
+  const [formData, setFormData] = useState(defaultState)
+  const [error, setError] = useState<string>()
 
   const navigate = useNavigate()
 
@@ -32,10 +34,10 @@ export default function SignIn() {
     try {
       const { email, password } = formData
 
-      await signIn(email, password)
+      await signIn({email, password})
 
       navigate("/")
-    } catch(err) {
+    } catch(err: any) {
       setError(err.message)
     }
   }
